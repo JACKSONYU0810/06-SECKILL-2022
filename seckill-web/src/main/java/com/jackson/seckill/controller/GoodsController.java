@@ -36,7 +36,7 @@ public class GoodsController {
 
 
     @RequestMapping("/goodsList")
-    public String goodsList(Model model) {
+    public String goodsList(Model model){
 
         String url = goodsService + "goodsList";
         Map goodsList = restTemplate.getForObject(url, Map.class);
