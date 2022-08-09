@@ -1,6 +1,16 @@
 package com.jackson.seckill.controller;
 
-import org.springframework.stereotype.Controller;
+import com.jackson.seckill.common.Constants;
+import com.jackson.seckill.common.ReturnObject;
+import com.jackson.seckill.model.Goods;
+import com.jackson.seckill.service.GoodsService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * ClassName: GoodsController
@@ -10,9 +20,46 @@ import org.springframework.stereotype.Controller;
  * @Date: 7/29/2022 11:20 AM
  * @Author: JacksonYu
  */
-@Controller
+@RestController
 public class GoodsController {
 
+    @Autowired
+    private GoodsService goodsService;
+
+    @RequestMapping("/goodsList")
+    public Object goodsList(){
+
+        List<Goods> goodsList = goodsService.queryGoodsList();
+
+        ReturnObject returnObject = new ReturnObject();
+        returnObject.setCode(Constants.OK);
+        returnObject.setMessage("操作成功");
+        returnObject.setResult(goodsList);
+
+        return returnObject;
+    }
+
+    @RequestMapping("/goodsInfo/{id}")
+    public Object goodsList(@PathVariable Integer id){
+
+        Goods goodsInfo = goodsService.queryGoodsInfoById(id);
+
+        ReturnObject returnObject = new ReturnObject();
+        returnObject.setCode(Constants.OK);
+        returnObject.setMessage("操作成功");
+        returnObject.setResult(goodsInfo);
+
+        return returnObject;
+    }
+
+    @RequestMapping("/secKill/{goodsId}/{randomName}/{uid}")
+    @ResponseBody
+    public Object secKill(@PathVariable Integer goodsId,@PathVariable String randomName,@PathVariable Integer uid){
+
+        ReturnObject returnObject = goodsService.secKill(goodsId,randomName,uid);
+
+        return returnObject;
+    }
 
 
 }

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script th:src="@{|/js/jquery.min.js|}"></script>
+    <script th:src="@{|/js/jquery.countdown.min.js|}"></script>
+    <script th:src="@{|/js/seckill1.js|}"></script>
+
+    <!--内联脚本-->
+    <script th:inline="javascript">
+        $(function () {
+            seckillObj.fun.initSeckill([[${goodsMap.get("id")}]],[[${goodsMap.get("startTime")}]],[[${goodsMap.get("endTime")}]])
+        })
+
+    </script>
+
+</head>
+<body>
+    <div>
+        <div style="float: left">
+            <img th:src="@{|/${goodsMap.get('imageUrl')}|}">
+        </div>
+        <div style="float: left;margin-top: 100px;">
+            <span th:text="${goodsMap.get('nameDesc')}"></span><br>
+            <span th:text="${goodsMap.get('name')}"></span>&nbsp;&nbsp;
+            <span th:text="${goodsMap.get('price')}"></span><br><br>
+            <span id="secKillButSpan">
+
+            </span>
+        </div>
+    </div>
+</body>
+</html>

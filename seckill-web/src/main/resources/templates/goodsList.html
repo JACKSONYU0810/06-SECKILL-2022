@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div th:each="goodsMap:${goodsMapList}">
+    <a th:href="@{|/showGoodsInfo/${goodsMap.get('id')}|}">
+        <!--书写路径表达式时,记得要加双斜杠 || -->
+        <img th:src="@{|/${goodsMap.get('imageUrl')}|}"></img><br>
+        <span th:text="${goodsMap.get('nameDesc')}"></span><br>
+        <span th:text="${goodsMap.get('name')}"></span>
+        <span th:text="${goodsMap.get('price')}"></span>
+    </a>
+</div>
+</body>
+</html>
