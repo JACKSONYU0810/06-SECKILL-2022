@@ -3,6 +3,7 @@ package com.jackson.seckill.service;
 import com.jackson.seckill.common.ReturnObject;
 import com.jackson.seckill.model.Goods;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -20,4 +21,6 @@ public interface GoodsService {
     Goods queryGoodsInfoById(Integer id);
 
     ReturnObject secKill(Integer goodsId, String randomName, Integer uid);
+
+    BigDecimal getGoodsPrice(Integer goodsId);
 }

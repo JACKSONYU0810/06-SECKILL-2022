@@ -2,6 +2,7 @@ package com.jackson.seckill.mapper;
 
 import com.jackson.seckill.model.Goods;
 
+import java.math.BigDecimal;
 import java.util.List;
 public interface GoodsMapper {
     int deleteByPrimaryKey(Integer id);
@@ -18,4 +19,5 @@ public interface GoodsMapper {
 
     List<Goods> selectGoodsList();
 
+    BigDecimal selectGoodsPriceByGoodsId(Integer goodsId);
 }

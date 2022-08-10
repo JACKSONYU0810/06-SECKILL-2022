@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -61,5 +62,18 @@ public class GoodsController {
         return returnObject;
     }
 
+
+    @RequestMapping("/getGoodsPrice/{goodsId}")
+    public Object getGoodsPrice(@PathVariable Integer goodsId){
+
+        BigDecimal goodsPrice = goodsService.getGoodsPrice(goodsId);
+
+        ReturnObject returnObject = new ReturnObject();
+        returnObject.setCode(Constants.OK);
+        returnObject.setMessage("获取商品价格成功");
+        returnObject.setResult(goodsPrice);
+
+        return returnObject;
+    }
 
 }

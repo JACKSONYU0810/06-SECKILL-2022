@@ -145,4 +145,13 @@
     from
       goods
   </select>
+
+  <select id="selectGoodsPriceByGoodsId" resultType="java.math.BigDecimal">
+    select
+      price
+    from
+      goods
+    where
+      id = #{goodsId}
+  </select>
 </mapper>
