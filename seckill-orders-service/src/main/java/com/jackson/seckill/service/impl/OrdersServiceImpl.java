@@ -2,6 +2,7 @@ package com.jackson.seckill.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jackson.seckill.common.Constants;
+import com.jackson.seckill.common.ReturnObject;
 import com.jackson.seckill.mapper.OrdersMapper;
 import com.jackson.seckill.model.Orders;
 import com.jackson.seckill.service.OrdersService;
@@ -9,9 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
@@ -47,10 +46,10 @@ public class OrdersServiceImpl implements OrdersService {
     public int order(Orders orders) {
         int result = 0;
         try {
-            String url = goodsService+"getGoodsPrice/"+orders.getGoodsId();
+            String url = goodsService + "getGoodsPrice/" + orders.getGoodsId();
             Map goodsMap = restTemplate.getForObject(url, Map.class);
 
-            BigDecimal goodsPrice = (BigDecimal) (goodsMap.get("result"));
+            BigDecimal goodsPrice = new BigDecimal((Double) goodsMap.get("result"));
             orders.setBuyNum(1);
             orders.setCreateTime(new Date());
             orders.setStatus(1);
@@ -60,20 +59,50 @@ public class OrdersServiceImpl implements OrdersService {
             //添加订单到数据库中
             result = ordersMapper.insertSelective(orders);
 
-            //订单查询成功后，将redis中备份的订单信息删除
-            redisTemplate.delete(Constants.ORDER+orders.getGoodsId()+orders.getUid());
-
             //将下单成功的信息，保存到redis中
             redisTemplate.setKeySerializer(stringRedisSerializer);
             redisTemplate.setValueSerializer(stringRedisSerializer);
 
-            redisTemplate.opsForValue().set(Constants.ORDER_RESULT+orders.getGoodsId()+orders.getUid(), JSONObject.toJSONString(orders));
+            //订单查询成功后，将redis中备份的订单信息删除
+            redisTemplate.delete(Constants.ORDER + orders.getGoodsId() + orders.getUid());
 
-        } catch (RestClientException e) {
-            e.printStackTrace();
+            redisTemplate.opsForValue().set(Constants.ORDER_RESULT + orders.getGoodsId() + orders.getUid(), JSONObject.toJSONString(orders));
+
+        } catch (Exception e) {
+            String message = e.getMessage();
+            if (message.indexOf("for key 'idx_uid_goodsid'") >= 0) {
+                redisTemplate.setKeySerializer(stringRedisSerializer);
+                redisTemplate.setValueSerializer(stringRedisSerializer);
+                System.out.println("向数据库中重复插入数据,违反了唯一约束");
+
+                //程序到这,因为唯一约束冲突那么我们需要清除Redis中的那个订单的备份数据
+                redisTemplate.delete(Constants.ORDER + orders.getGoodsId() + orders.getUid());
+
+                return 2;
+            }
+            return 3;
+        }
+        return result;
+    }
+
+    @Override
+    public ReturnObject getOrderResult(Integer goodsId, Integer uid) {
+        redisTemplate.setKeySerializer(stringRedisSerializer);
+        redisTemplate.setValueSerializer(stringRedisSerializer);
+
+        String orderStr = (String) redisTemplate.opsForValue().get(Constants.ORDER_RESULT+goodsId+uid);
+        ReturnObject returnObject = new ReturnObject();
+        if (orderStr==null || "".equals(orderStr)){
+            returnObject.setCode(Constants.ERROR);
+            returnObject.setMessage("未获取到订单信息");
+            returnObject.setResult("");
+            return returnObject;
         }
 
+        returnObject.setCode(Constants.OK);
+        returnObject.setMessage("获取订单成功");
+        returnObject.setResult(JSONObject.parseObject(orderStr,Orders.class));
 
-        return 0;
+        return returnObject;
     }
 }

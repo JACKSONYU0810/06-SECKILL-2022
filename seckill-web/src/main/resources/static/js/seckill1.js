@@ -13,8 +13,11 @@ var seckillObj = {
 
         secKill: function (goodsId, randomName) {
             return "/secKill/" + goodsId + "/" + randomName
-        }
+        },
 
+        getOrderResult:function (goodsId) {
+            return "/getOrderResult/"+goodsId
+        }
 
     },
     fun: {
@@ -68,11 +71,10 @@ var seckillObj = {
                     type: "get",
                     dataType: "json",
                     success: function (data) {
-                        if (data.code = "0") {
+                        if (data.code != "0") {
                             alert(data.message)
                             return false
                         }
-
                         seckillObj.fun.secKill(goodsId, data.result)
                     },
                     error: function (data) {
@@ -89,11 +91,36 @@ var seckillObj = {
                 type: "get",
                 dataType: "json",
                 success: function (data) {
-                    if (data.code = "0") {
-                        alert(data.result)
+                    if (data.code != "0") {
+                        alert(data.message)
                         return false
                     }
-                    //返回成功表示秒杀成功，并将订单存放在redis中
+                    //返回成功表示秒杀成功，并将订单保存在数据库中，接下来就是获取订单
+                    seckillObj.fun.getOrderResult(goodsId)
+                },
+                error: function (data) {
+                    alert("服务繁忙，请稍后再试333")
+                }
+            })
+        },
+
+        //获取订单信息，完成支付功能
+        getOrderResult:function (goodsId) {
+            $.ajax({
+                url: seckillObj.url.getOrderResult(goodsId),
+                type: "get",
+                dataType: "json",
+                success: function (data) {
+                    //进入if表示，没有获取到订单成功信息，可能是请求太多导致没有下单完成，因此要递归调用获取订单信息
+                    if (data.code != "0") {
+                        window.setTimeout("seckillObj.url.getOrderResult("+goodsId+")",3000)
+                        return false
+                    }
+                    //获取订单信息成功，进行支付功能
+                    var orderMoney = data.result.orderMoney
+                    var orderId = data.result.id
+                    //如果获取订单成功,显示订单,并提示进行支付
+                    $("#secKillButSpan").html('<span style="color: red">下单成功: 共计 '+orderMoney+' 元 <a href="/pay/'+orderId+'">立即支付</a></span>')
 
                 },
                 error: function (data) {

@@ -25,6 +25,11 @@ public class RabbitMQListener {
     private void rabbitListener(String message){
         Orders orders = JSONObject.parseObject(message, Orders.class);
 
+        /**
+         * return 1 订单保存成功
+         * return 2 订单重复插入
+         * return 3 其他异常
+         */
         int result = ordersService.order(orders);
     }
 }

@@ -198,7 +198,7 @@ public class GoodsServiceImpl implements GoodsService {
 
         //一个线程自增一次，还要在自减一次，防止总量超过1000后，无高并发时，用户无法访问
         redisTemplate.opsForValue().decrement(Constants.CURRENT_LIMITING);
-        returnObject.setCode(Constants.ERROR);
+        returnObject.setCode(Constants.OK);
         returnObject.setMessage("抢购成功");
         returnObject.setResult("");
 
