@@ -15,7 +15,9 @@ mvnw.cmd
 .sts4-cache
 
 ### IntelliJ IDEA ###
-.idea
+.idea/libraries
+.idea/inspectionProfiles
+.idea/dataSources
 *.iws
 *.iml
 *.ipr
